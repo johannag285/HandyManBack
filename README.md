@@ -9,7 +9,7 @@ This project was generated with java 8, maven and springboot 8
  In the case of Eclipse IDE where the file 'eclipse.ini' is located.
  
 # Running 
-Select run -> Java Aplication and then choose 'HandyManApplication - com.ias.HandyMan'
+If you IDE is Eclipse Select run As-> Java Aplication and then choose 'HandyManApplication - com.ias.HandyMan'
  
  
  
