@@ -150,10 +150,10 @@ public class CalculateWorkingHourServiceImp implements CalculateWorkingHourServi
 			calculateWorkingHourRequest.setStartDateTime(dateStart);
 			listServiceReport = calculateWorkingHourRepository.getQueryWeek(calculateWorkingHourRequest).get();
 		} else if (typetypeWorkingHours.equals(Constants.typeExtraNormalHours)) {
-			cal.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
+			/*cal.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
 			endDateTime = sdf.format(cal.getTime());
 			dateEnd = formatterDate.parse(endDateTime);
-			calculateWorkingHourRequest.setEndDateTime(dateEnd);
+			calculateWorkingHourRequest.setEndDateTime(dateEnd);*/
 			
 			
 			List<ServiceReport> listServiceReportWeek = calculateWorkingHourRepository
@@ -164,18 +164,18 @@ public class CalculateWorkingHourServiceImp implements CalculateWorkingHourServi
 			System.out.println(splitHour[0]);
 			if (Integer.valueOf(splitHour[0]) > 48) {
 				differenceHoursWeek = Integer.valueOf(splitHour[0]) - 48;
-				cal.set(Calendar.DAY_OF_WEEK, Calendar.SATURDAY);
+				/*cal.set(Calendar.DAY_OF_WEEK, Calendar.SATURDAY);
 				endDateTime = sdf.format(cal.getTime());
 				dateEnd = formatterDate.parse(endDateTime);
-				calculateWorkingHourRequest.setEndDateTime(dateEnd);
+				calculateWorkingHourRequest.setEndDateTime(dateEnd);*/
 				
 				listServiceReport = calculateWorkingHourRepository.getQueryWeek(calculateWorkingHourRequest).get();
 			}
 		} else if (typetypeWorkingHours.equals(Constants.typeExtraNightHours)) {
-			cal.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
+			/*cal.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
 			endDateTime = sdf.format(cal.getTime());
 			dateEnd = formatterDate.parse(endDateTime);
-			calculateWorkingHourRequest.setEndDateTime(dateEnd);
+			calculateWorkingHourRequest.setEndDateTime(dateEnd);*/
 			
 			
 			List<ServiceReport> listServiceReportWeek = calculateWorkingHourRepository
@@ -186,10 +186,10 @@ public class CalculateWorkingHourServiceImp implements CalculateWorkingHourServi
 			if (Integer.valueOf(splitHour[0]) > 48) {
 				differenceHoursWeek = Integer.valueOf(splitHour[0]) - 48;
 				
-				cal.set(Calendar.DAY_OF_WEEK, Calendar.SATURDAY);
+				/*cal.set(Calendar.DAY_OF_WEEK, Calendar.SATURDAY);
 				endDateTime = sdf.format(cal.getTime());
 				dateEnd = formatterDate.parse(endDateTime);
-				calculateWorkingHourRequest.setEndDateTime(dateEnd);
+				calculateWorkingHourRequest.setEndDateTime(dateEnd);*/
 				listServiceReport = calculateWorkingHourRepository.getQueryWeek(calculateWorkingHourRequest).get();
 			}
 		} else if (typetypeWorkingHours.equals(Constants.typeExtraSundayHours)) {
