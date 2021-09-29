@@ -5,7 +5,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -26,16 +25,16 @@ import com.ias.HandyMan.repository.CalculateWorkingHourRepository;
 public class CalculateWorkingHourServiceImp implements CalculateWorkingHourService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(CalculateWorkingHourService.class);
 	private CalculateWorkingHourRepository calculateWorkingHourRepository;
-	private int totalHours;
+	/*private int totalHours;
 	private int totalMinutes;
-	private int totalSeconds;
+	private int totalSeconds;*/
 	private long testUnit;
 	private int differenceHoursWeek;
 
 	public CalculateWorkingHourServiceImp(CalculateWorkingHourRepository calculateWorkingHourRepository) {
-		this.totalHours = 0;
+		/*this.totalHours = 0;
 		this.totalMinutes = 0;
-		this.totalSeconds = 0;
+		this.totalSeconds = 0;*/
 		this.testUnit = 0;
 		this.differenceHoursWeek = 0;
 		this.calculateWorkingHourRepository = calculateWorkingHourRepository;
@@ -136,9 +135,9 @@ public class CalculateWorkingHourServiceImp implements CalculateWorkingHourServi
 		calculateWorkingHourRequest.setStartTime(timeStartParse);
 
 		if (typetypeWorkingHours.equals(Constants.typeNormalHours)) {
-			listServiceReport = calculateWorkingHourRepository.getQueryNormalHours(calculateWorkingHourRequest).get();
-		}else if (typetypeWorkingHours.equals(Constants.typeNightHours)) {
-			listServiceReport = calculateWorkingHourRepository.getQueryNightHours(calculateWorkingHourRequest).get();
+			listServiceReport = calculateWorkingHourRepository.getQueryWeek(calculateWorkingHourRequest).get();
+		} else if (typetypeWorkingHours.equals(Constants.typeNightHours)) {
+			listServiceReport = calculateWorkingHourRepository.getQueryWeek(calculateWorkingHourRequest).get();
 		} else if (typetypeWorkingHours.equals(Constants.typeSundayHours)) {
 			Calendar calendar = Calendar.getInstance();
 			calendar.set(Calendar.WEEK_OF_YEAR, numberWeek);
@@ -153,16 +152,17 @@ public class CalculateWorkingHourServiceImp implements CalculateWorkingHourServi
 
 			calculateWorkingHourRequest.setEndDateTime(dateEnd);
 			calculateWorkingHourRequest.setStartDateTime(dateStart);
-			listServiceReport = calculateWorkingHourRepository.getQuerySundayHours(calculateWorkingHourRequest).get();
+			listServiceReport = calculateWorkingHourRepository.getQueryWeek(calculateWorkingHourRequest).get();
 		} else if (typetypeWorkingHours.equals(Constants.typeExtraNormalHours)) {
 			List<ServiceReport> listServiceReportWeek = calculateWorkingHourRepository
 					.getQueryWeek(calculateWorkingHourRequest).get();
 			String hours = calculateHours(listServiceReportWeek, false, "");
 			String splitHour[] = hours.split(":");
+			System.out.println("HOURSSS");
+			System.out.println(splitHour[0]);
 			if (Integer.valueOf(splitHour[0]) > 48) {
-				differenceHoursWeek = Integer.valueOf(splitHour[0])- 48;
-				listServiceReport = calculateWorkingHourRepository.getQueryNormalHours(calculateWorkingHourRequest)
-						.get();
+				differenceHoursWeek = Integer.valueOf(splitHour[0]) - 48;
+				listServiceReport = calculateWorkingHourRepository.getQueryWeek(calculateWorkingHourRequest).get();
 			}
 		} else if (typetypeWorkingHours.equals(Constants.typeExtraNightHours)) {
 			List<ServiceReport> listServiceReportWeek = calculateWorkingHourRepository
@@ -171,9 +171,8 @@ public class CalculateWorkingHourServiceImp implements CalculateWorkingHourServi
 			String splitHour[] = hours.split(":");
 
 			if (Integer.valueOf(splitHour[0]) > 48) {
-				differenceHoursWeek = Integer.valueOf(splitHour[0])- 48;
-				listServiceReport = calculateWorkingHourRepository.getQueryNightHours(calculateWorkingHourRequest)
-						.get();
+				differenceHoursWeek = Integer.valueOf(splitHour[0]) - 48;
+				listServiceReport = calculateWorkingHourRepository.getQueryWeek(calculateWorkingHourRequest).get();
 			}
 		} else if (typetypeWorkingHours.equals(Constants.typeExtraSundayHours)) {
 			List<ServiceReport> listServiceReportWeek = calculateWorkingHourRepository
@@ -199,15 +198,16 @@ public class CalculateWorkingHourServiceImp implements CalculateWorkingHourServi
 						.get();
 			}
 		}
+
 		return listServiceReport;
 	}
 
 	private String calculateHours(List<ServiceReport> listServiceReport, boolean calculateExtrasHours,
 			String typeWorkingHours) {
 		String totalnormalHours = "";
-		totalHours = 0;
+		/*totalHours = 0;
 		totalMinutes = 0;
-		totalSeconds = 0;
+		totalSeconds = 0;*/
 		testUnit = 0;
 
 		listServiceReport.forEach(reportService -> {
@@ -217,52 +217,462 @@ public class CalculateWorkingHourServiceImp implements CalculateWorkingHourServi
 			Calendar calendarEndTime = Calendar.getInstance();
 			calendarEndTime.setTime(reportService.getEndDateTime());
 
-			int hourDayEnd = calendarEndTime.get(Calendar.HOUR_OF_DAY);
-			int minuteDayEnd = calendarEndTime.get(Calendar.MINUTE);
-			int secondDayEnd = calendarEndTime.get(Calendar.SECOND);
+			int hourDayStart = 0;
+			int minuteDayStart = 0;
+			int secondDayStart = 0;
 
-			int hourDayStart = calendarStartTime.get(Calendar.HOUR_OF_DAY);
-			int minuteDayStart = calendarStartTime.get(Calendar.MINUTE);
-			int secondDayStart = calendarStartTime.get(Calendar.SECOND);
+			int hourDayEnd = 0;
+			int minuteDayEnd = 0;
+			int secondDayEnd = 0;
 
+			LocalDateTime fromDateTime = null;
+			LocalDateTime toDateTime = null;
 			if ((typeWorkingHours.equals(Constants.typeNormalHours)
-					|| typeWorkingHours.equals(Constants.typeExtraNormalHours)) && hourDayEnd > 20
-					&& calendarEndTime.get(Calendar.DAY_OF_MONTH) == calendarStartTime.get(Calendar.DAY_OF_MONTH)) {
-				hourDayEnd = 20;
-				minuteDayEnd = minuteDayEnd > 0 ? 0 : minuteDayEnd;
-				secondDayEnd = secondDayEnd > 0 ? 0 : secondDayEnd;
-			} else if ((typeWorkingHours.equals(Constants.typeNormalHours)
-					|| typeWorkingHours.equals(Constants.typeExtraNormalHours)) && hourDayEnd > 0
-					&& calendarEndTime.get(Calendar.DAY_OF_MONTH) > calendarStartTime.get(Calendar.DAY_OF_MONTH)) {
-				calendarEndTime.setTime(reportService.getStartDateTime());
-				hourDayEnd = 20;
-				minuteDayEnd = minuteDayEnd < 59 ? minuteDayEnd : 59;
-				secondDayEnd = secondDayEnd < 59 ? secondDayEnd : 59;
-			} else if ((typeWorkingHours.equals(Constants.typeNightHours)
-					|| typeWorkingHours.equals(Constants.typeExtraNightHours))
-					&& calendarEndTime.get(Calendar.DAY_OF_MONTH) > calendarStartTime.get(Calendar.DAY_OF_MONTH)
-					&& hourDayEnd > 7) {
-				hourDayEnd = 7;
-				minuteDayEnd = minuteDayEnd > 0 ? 0 : minuteDayEnd;
-				secondDayEnd = secondDayEnd > 0 ? 0 : secondDayEnd;
+					|| typeWorkingHours.equals(Constants.typeExtraNormalHours))) {
+
+				if (calendarEndTime.get(Calendar.DAY_OF_MONTH) > calendarStartTime.get(Calendar.DAY_OF_MONTH)
+						&& calendarStartTime.get(Calendar.HOUR_OF_DAY) <= 7
+						&& calendarEndTime.get(Calendar.HOUR_OF_DAY) >= 20) {
+					/*primera fecha*/
+
+					hourDayStart = calendarStartTime.get(Calendar.HOUR_OF_DAY) < 7 ? 7
+							: calendarStartTime.get(Calendar.HOUR_OF_DAY);
+					minuteDayStart = calendarStartTime.get(Calendar.HOUR_OF_DAY) < 7
+							&& calendarEndTime.get(Calendar.MINUTE) > 0 ? 0 : calendarEndTime.get(Calendar.MINUTE);
+					secondDayStart = calendarStartTime.get(Calendar.HOUR_OF_DAY) < 7
+							&& calendarEndTime.get(Calendar.SECOND) > 0 ? 0 : calendarEndTime.get(Calendar.SECOND);
+
+					calendarStartTime.set(Calendar.HOUR_OF_DAY, hourDayStart);
+					calendarStartTime.set(Calendar.MINUTE, minuteDayStart);
+					calendarStartTime.set(Calendar.SECOND, secondDayStart);
+					fromDateTime = calculateLocalDateTime(calendarStartTime);
+					
+					calendarEndTime.setTime(reportService.getStartDateTime());
+					calendarEndTime.set(Calendar.HOUR_OF_DAY, 20);
+					calendarEndTime.set(Calendar.MINUTE, 0);
+					calendarEndTime.set(Calendar.SECOND, 0);
+					toDateTime = calculateLocalDateTime(calendarEndTime);
+
+					Duration duration = Duration.between(fromDateTime, toDateTime);
+					testUnit = testUnit + duration.toMillis();
+					
+					
+					/*Segunda Fecha*/
+					calendarStartTime.setTime(reportService.getEndDateTime());
+					calendarEndTime.setTime(reportService.getEndDateTime());
+					
+					hourDayStart = calendarStartTime.get(Calendar.HOUR_OF_DAY) > 7 ? 7
+							: calendarStartTime.get(Calendar.HOUR_OF_DAY);
+					minuteDayStart = calendarStartTime.get(Calendar.HOUR_OF_DAY) > 7
+							&& calendarEndTime.get(Calendar.MINUTE) > 0 ? 0 : calendarEndTime.get(Calendar.MINUTE);
+					secondDayStart = calendarStartTime.get(Calendar.HOUR_OF_DAY) > 7
+							&& calendarEndTime.get(Calendar.SECOND) > 0 ? 0 : calendarEndTime.get(Calendar.SECOND);
+
+					calendarStartTime.set(Calendar.HOUR_OF_DAY, hourDayStart);
+					calendarStartTime.set(Calendar.MINUTE, minuteDayStart);
+					calendarStartTime.set(Calendar.SECOND, secondDayStart);
+					fromDateTime = calculateLocalDateTime(calendarStartTime);
+					
+					calendarEndTime.set(Calendar.HOUR_OF_DAY, 20);
+					calendarEndTime.set(Calendar.MINUTE, 0);
+					calendarEndTime.set(Calendar.SECOND, 0);
+					toDateTime = calculateLocalDateTime(calendarEndTime);
+
+					duration = Duration.between(fromDateTime, toDateTime);
+					testUnit = testUnit + duration.toMillis();
+
+				} else if (calendarEndTime.get(Calendar.DAY_OF_MONTH) > calendarStartTime.get(Calendar.DAY_OF_MONTH)) {
+					if (calendarStartTime.get(Calendar.HOUR_OF_DAY) >= 7) {
+						fromDateTime = calculateLocalDateTime(calendarStartTime);
+						calendarEndTime.setTime(reportService.getStartDateTime());
+
+						calendarEndTime.set(Calendar.HOUR_OF_DAY, 20);
+						calendarEndTime.set(Calendar.MINUTE, 0);
+						calendarEndTime.set(Calendar.SECOND, 0);
+
+						toDateTime = calculateLocalDateTime(calendarEndTime);
+
+						Duration duration = Duration.between(fromDateTime, toDateTime);
+						testUnit = testUnit + duration.toMillis();
+					}
+
+					calendarStartTime.setTime(reportService.getEndDateTime());
+					calendarEndTime.setTime(reportService.getEndDateTime());
+
+					if (calendarEndTime.get(Calendar.HOUR_OF_DAY) >= 7) {
+						calendarStartTime.set(Calendar.HOUR_OF_DAY, 7);
+						calendarStartTime.set(Calendar.MINUTE, 0);
+						calendarStartTime.set(Calendar.SECOND, 0);
+						fromDateTime = calculateLocalDateTime(calendarStartTime);
+
+						toDateTime = calculateLocalDateTime(calendarEndTime);
+						Duration duration = Duration.between(fromDateTime, toDateTime);
+						testUnit = testUnit + duration.toMillis();
+					}
+
+				} else if (calendarEndTime.get(Calendar.HOUR_OF_DAY) > 20
+						&& calendarStartTime.get(Calendar.HOUR_OF_DAY) >= 7
+						&& calendarEndTime.get(Calendar.DAY_OF_MONTH) == calendarStartTime.get(Calendar.DAY_OF_MONTH)) {
+
+					minuteDayEnd = calendarEndTime.get(Calendar.MINUTE) > 0 ? 0 : calendarEndTime.get(Calendar.MINUTE);
+					secondDayEnd = calendarEndTime.get(Calendar.SECOND) > 0 ? 0 : calendarEndTime.get(Calendar.SECOND);
+
+					fromDateTime = calculateLocalDateTime(calendarStartTime);
+
+					calendarEndTime.set(Calendar.HOUR_OF_DAY, 20);
+					calendarEndTime.set(Calendar.MINUTE, minuteDayEnd);
+					calendarEndTime.set(Calendar.SECOND, secondDayEnd);
+					toDateTime = calculateLocalDateTime(calendarEndTime);
+
+					Duration duration = Duration.between(fromDateTime, toDateTime);
+					testUnit = testUnit + duration.toMillis();
+				} else if (calendarEndTime.get(Calendar.HOUR_OF_DAY) <= 20
+						&& calendarStartTime.get(Calendar.HOUR_OF_DAY) >= 7
+						&& calendarEndTime.get(Calendar.DAY_OF_MONTH) == calendarStartTime.get(Calendar.DAY_OF_MONTH)) {
+
+					hourDayEnd = calendarEndTime.get(Calendar.HOUR_OF_DAY);
+					minuteDayEnd = calendarEndTime.get(Calendar.MINUTE);
+					secondDayEnd = calendarEndTime.get(Calendar.SECOND);
+
+					minuteDayEnd = hourDayEnd == 20 ? 0 : minuteDayEnd;
+					secondDayEnd = hourDayEnd == 20 ? 0 : secondDayEnd;
+
+					calendarStartTime.set(Calendar.HOUR_OF_DAY, 7);
+					calendarStartTime.set(Calendar.MINUTE, 0);
+					calendarStartTime.set(Calendar.SECOND, 0);
+					fromDateTime = calculateLocalDateTime(calendarStartTime);
+
+					calendarEndTime.set(Calendar.HOUR_OF_DAY, hourDayEnd);
+					calendarEndTime.set(Calendar.MINUTE, minuteDayEnd);
+					calendarEndTime.set(Calendar.SECOND, secondDayEnd);
+					toDateTime = calculateLocalDateTime(calendarEndTime);
+					Duration duration = Duration.between(fromDateTime, toDateTime);
+					testUnit = testUnit + duration.toMillis();
+
+				} else if (calendarStartTime.get(Calendar.HOUR_OF_DAY) < 7
+						&& calendarEndTime.get(Calendar.HOUR_OF_DAY) > 20
+						&& calendarEndTime.get(Calendar.DAY_OF_MONTH) == calendarStartTime.get(Calendar.DAY_OF_MONTH)) {
+
+					calendarStartTime.set(Calendar.HOUR_OF_DAY, 7);
+					calendarStartTime.set(Calendar.MINUTE, 0);
+					calendarStartTime.set(Calendar.SECOND, 0);
+					fromDateTime = calculateLocalDateTime(calendarStartTime);
+
+					calendarEndTime.set(Calendar.HOUR_OF_DAY, 20);
+					calendarEndTime.set(Calendar.MINUTE, 0);
+					calendarEndTime.set(Calendar.SECOND, 0);
+					toDateTime = calculateLocalDateTime(calendarEndTime);
+
+					Duration duration = Duration.between(fromDateTime, toDateTime);
+					testUnit = testUnit + duration.toMillis();
+				} else if (calendarStartTime.get(Calendar.HOUR_OF_DAY) < 7
+						&& calendarEndTime.get(Calendar.HOUR_OF_DAY) <= 20
+						&& calendarEndTime.get(Calendar.DAY_OF_MONTH) == calendarStartTime.get(Calendar.DAY_OF_MONTH)) {
+
+					hourDayStart = calendarStartTime.get(Calendar.HOUR_OF_DAY) < 7 ? 7
+							: calendarStartTime.get(Calendar.HOUR_OF_DAY);
+
+					calendarStartTime.set(Calendar.HOUR_OF_DAY, hourDayStart);
+					calendarStartTime.set(Calendar.MINUTE, 0);
+					calendarStartTime.set(Calendar.SECOND, 0);
+					fromDateTime = calculateLocalDateTime(calendarStartTime);
+
+					minuteDayEnd = calendarEndTime.get(Calendar.HOUR_OF_DAY) == 20
+							&& calendarEndTime.get(Calendar.MINUTE) > 0 ? 0 : calendarEndTime.get(Calendar.MINUTE);
+					secondDayEnd = calendarEndTime.get(Calendar.HOUR_OF_DAY) == 20
+							&& calendarEndTime.get(Calendar.SECOND) > 0 ? 0 : calendarEndTime.get(Calendar.SECOND);
+
+					calendarEndTime.set(Calendar.MINUTE, minuteDayEnd);
+					calendarEndTime.set(Calendar.SECOND, secondDayEnd);
+					toDateTime = calculateLocalDateTime(calendarEndTime);
+					Duration duration = Duration.between(fromDateTime, toDateTime);
+					testUnit = testUnit + duration.toMillis();
+				}
+
+			} else if (typeWorkingHours.equals(Constants.typeNightHours)
+					|| typeWorkingHours.equals(Constants.typeExtraNightHours)) {
+
+				 if (calendarEndTime.get(Calendar.DAY_OF_MONTH) > calendarStartTime.get(Calendar.DAY_OF_MONTH)) {
+					/* Primera Fecha */
+					if (calendarStartTime.get(Calendar.HOUR_OF_DAY) <= 7) {
+						fromDateTime = calculateLocalDateTime(calendarStartTime);
+						calendarEndTime.setTime(reportService.getStartDateTime());
+						hourDayEnd = calendarEndTime.get(Calendar.HOUR_OF_DAY) <= 7
+								? 7
+								: calendarStartTime.get(Calendar.HOUR_OF_DAY);
+						
+						calendarEndTime.set(Calendar.HOUR_OF_DAY, hourDayEnd);
+						toDateTime = calculateLocalDateTime(calendarEndTime);
+
+						Duration duration = Duration.between(fromDateTime, toDateTime);
+						testUnit = testUnit + duration.toMillis();
+					}
+
+					calendarStartTime.setTime(reportService.getStartDateTime());
+					calendarEndTime.setTime(reportService.getStartDateTime());
+
+					if (calendarStartTime.get(Calendar.HOUR_OF_DAY) >= 7) {
+						hourDayStart = calendarStartTime.get(Calendar.HOUR_OF_DAY);
+						minuteDayStart = calendarStartTime.get(Calendar.MINUTE);
+						secondDayStart = calendarStartTime.get(Calendar.SECOND);
+
+						calendarStartTime.set(Calendar.HOUR_OF_DAY, 20);
+						calendarStartTime.set(Calendar.MINUTE, 0);
+						calendarStartTime.set(Calendar.SECOND, 0);
+						fromDateTime = calculateLocalDateTime(calendarStartTime);
+
+						calendarEndTime.set(Calendar.HOUR_OF_DAY, 23);
+						calendarEndTime.set(Calendar.MINUTE, 59);
+						calendarEndTime.set(Calendar.SECOND, 59);
+						toDateTime = calculateLocalDateTime(calendarEndTime);
+						Duration duration = Duration.between(fromDateTime, toDateTime);
+						testUnit = testUnit + duration.toMillis();
+					}
+					
+					
+					calendarStartTime.setTime(reportService.getStartDateTime());
+					calendarEndTime.setTime(reportService.getStartDateTime());
+
+					if (calendarStartTime.get(Calendar.HOUR_OF_DAY) < 7) {
+						hourDayStart = calendarStartTime.get(Calendar.HOUR_OF_DAY);
+						minuteDayStart = calendarStartTime.get(Calendar.MINUTE);
+						secondDayStart = calendarStartTime.get(Calendar.SECOND);
+
+						calendarStartTime.set(Calendar.HOUR_OF_DAY, 20);
+						calendarStartTime.set(Calendar.MINUTE, 0);
+						calendarStartTime.set(Calendar.SECOND, 0);
+						fromDateTime = calculateLocalDateTime(calendarStartTime);
+
+						calendarEndTime.set(Calendar.HOUR_OF_DAY, 23);
+						calendarEndTime.set(Calendar.MINUTE, 59);
+						calendarEndTime.set(Calendar.SECOND, 59);
+						toDateTime = calculateLocalDateTime(calendarEndTime);
+						Duration duration = Duration.between(fromDateTime, toDateTime);
+						testUnit = testUnit + duration.toMillis();
+					}
+
+					calendarStartTime.setTime(reportService.getStartDateTime());
+					calendarEndTime.setTime(reportService.getStartDateTime());
+					if (calendarStartTime.get(Calendar.HOUR_OF_DAY) >= 20) {
+						fromDateTime = calculateLocalDateTime(calendarStartTime);
+
+						calendarEndTime.setTime(reportService.getStartDateTime());
+
+						calendarEndTime.set(Calendar.HOUR_OF_DAY, 23);
+						calendarEndTime.set(Calendar.MINUTE, 59);
+						calendarEndTime.set(Calendar.SECOND, 59);
+						toDateTime = calculateLocalDateTime(calendarEndTime);
+						Duration duration = Duration.between(fromDateTime, toDateTime);
+						testUnit = testUnit + duration.toMillis();
+					}
+
+					/* Segunda fecha */
+
+					calendarStartTime.setTime(reportService.getEndDateTime());
+					calendarEndTime.setTime(reportService.getEndDateTime());
+
+					if (calendarStartTime.get(Calendar.HOUR_OF_DAY) >= 0) {
+						if (calendarStartTime.get(Calendar.HOUR_OF_DAY) >= 7) {
+							calendarStartTime.set(Calendar.HOUR_OF_DAY, 0);
+							calendarStartTime.set(Calendar.MINUTE, 0);
+							calendarStartTime.set(Calendar.SECOND, 0);
+							fromDateTime = calculateLocalDateTime(calendarStartTime);
+							
+							
+							hourDayEnd = calendarEndTime.get(Calendar.HOUR_OF_DAY) > 7 ? 7
+									: calendarEndTime.get(Calendar.HOUR_OF_DAY);
+							minuteDayEnd = calendarEndTime.get(Calendar.HOUR_OF_DAY) >= 7 ? 0
+									: calendarEndTime.get(Calendar.MINUTE);
+							secondDayEnd = calendarEndTime.get(Calendar.HOUR_OF_DAY) >= 7 ? 0
+									: calendarEndTime.get(Calendar.SECOND);
+
+							calendarEndTime.set(Calendar.HOUR_OF_DAY, hourDayEnd);
+							calendarEndTime.set(Calendar.MINUTE, minuteDayEnd);
+							calendarEndTime.set(Calendar.SECOND, secondDayEnd);
+
+							toDateTime = calculateLocalDateTime(calendarEndTime);
+
+							Duration duration = Duration.between(fromDateTime, toDateTime);
+							testUnit = testUnit + duration.toMillis();
+						} else if (calendarStartTime.get(Calendar.HOUR_OF_DAY) <= 7) {
+							minuteDayStart = calendarStartTime.get(Calendar.MINUTE) > 0
+									&& calendarStartTime.get(Calendar.HOUR_OF_DAY) == 7 ? 0
+											: calendarStartTime.get(Calendar.MINUTE);
+							secondDayEnd = calendarStartTime.get(Calendar.SECOND) > 0
+									&& calendarStartTime.get(Calendar.HOUR_OF_DAY) == 7 ? 0
+											: calendarStartTime.get(Calendar.SECOND);
+
+							calendarStartTime.set(Calendar.HOUR_OF_DAY, 0);
+							calendarStartTime.set(Calendar.MINUTE, minuteDayStart);
+							calendarStartTime.set(Calendar.SECOND, secondDayEnd);
+							fromDateTime = calculateLocalDateTime(calendarStartTime);
+							
+							toDateTime = calculateLocalDateTime(calendarEndTime);
+							Duration duration = Duration.between(fromDateTime, toDateTime);
+							testUnit = testUnit + duration.toMillis();
+						}
+					}
+
+					calendarStartTime.setTime(reportService.getEndDateTime());
+					calendarEndTime.setTime(reportService.getEndDateTime());
+
+					if (calendarStartTime.get(Calendar.HOUR_OF_DAY) >= 20) {
+						minuteDayEnd = calendarStartTime.get(Calendar.HOUR_OF_DAY) >= 20 && calendarStartTime.get(Calendar.MINUTE) > 0 ? 0 : calendarEndTime.get(Calendar.MINUTE);
+						secondDayEnd = calendarStartTime.get(Calendar.HOUR_OF_DAY) >= 20 && calendarStartTime.get(Calendar.SECOND) > 0 ? 0 : calendarEndTime.get(Calendar.SECOND);
+
+						
+						calendarStartTime.set(Calendar.HOUR_OF_DAY, 20);
+						calendarStartTime.set(Calendar.MINUTE, minuteDayEnd);
+						calendarStartTime.set(Calendar.SECOND, secondDayEnd);
+						fromDateTime = calculateLocalDateTime(calendarStartTime);
+
+						calendarEndTime.set(Calendar.HOUR_OF_DAY, calendarEndTime.get(Calendar.HOUR_OF_DAY));
+						calendarEndTime.set(Calendar.MINUTE, calendarEndTime.get(Calendar.MINUTE));
+						calendarEndTime.set(Calendar.SECOND, calendarEndTime.get(Calendar.SECOND));
+						toDateTime = calculateLocalDateTime(calendarEndTime);
+
+						Duration duration = Duration.between(fromDateTime, toDateTime);
+						testUnit = testUnit + duration.toMillis();
+					}
+
+				} else if (calendarEndTime.get(Calendar.DAY_OF_MONTH) == calendarStartTime.get(Calendar.DAY_OF_MONTH)
+						&& (calendarStartTime.get(Calendar.HOUR_OF_DAY) >= 0
+								&& calendarStartTime.get(Calendar.HOUR_OF_DAY) <= 7)
+						&& calendarEndTime.get(Calendar.HOUR_OF_DAY) >= 20) {
+
+					/* horas en la mañana */
+
+					minuteDayStart = calendarStartTime.get(Calendar.MINUTE) > 0
+							&& calendarStartTime.get(Calendar.HOUR_OF_DAY) == 7 ? 0
+									: calendarStartTime.get(Calendar.MINUTE);
+					secondDayEnd = calendarStartTime.get(Calendar.SECOND) > 0
+							&& calendarStartTime.get(Calendar.HOUR_OF_DAY) == 7 ? 0
+									: calendarStartTime.get(Calendar.SECOND);
+
+					calendarStartTime.set(Calendar.HOUR_OF_DAY, calendarStartTime.get(Calendar.HOUR_OF_DAY));
+					calendarStartTime.set(Calendar.MINUTE, minuteDayStart);
+					calendarStartTime.set(Calendar.SECOND, secondDayEnd);
+					fromDateTime = calculateLocalDateTime(calendarStartTime);
+
+					hourDayEnd = calendarEndTime.get(Calendar.HOUR_OF_DAY) > 7 ? 7
+							: calendarEndTime.get(Calendar.HOUR_OF_DAY);
+					minuteDayEnd = calendarEndTime.get(Calendar.HOUR_OF_DAY) >= 7 ? 0
+							: calendarEndTime.get(Calendar.MINUTE);
+					secondDayEnd = calendarEndTime.get(Calendar.HOUR_OF_DAY) >= 7 ? 0
+							: calendarEndTime.get(Calendar.SECOND);
+
+					calendarEndTime.set(Calendar.HOUR_OF_DAY, hourDayEnd);
+					calendarEndTime.set(Calendar.MINUTE, minuteDayEnd);
+					calendarEndTime.set(Calendar.SECOND, secondDayEnd);
+
+					toDateTime = calculateLocalDateTime(calendarEndTime);
+					Duration duration = Duration.between(fromDateTime, toDateTime);
+					testUnit = testUnit + duration.toMillis();
+
+					/* Horas en la noche */
+					calendarStartTime.setTime(reportService.getStartDateTime());
+					calendarEndTime.setTime(reportService.getEndDateTime());
+
+					if (calendarEndTime.get(Calendar.HOUR_OF_DAY) > 20) {
+						calendarStartTime.set(Calendar.HOUR_OF_DAY, 20);
+						calendarStartTime.set(Calendar.MINUTE, 0);
+						calendarStartTime.set(Calendar.SECOND, 0);
+						fromDateTime = calculateLocalDateTime(calendarStartTime);
+					} else if (calendarEndTime.get(Calendar.HOUR_OF_DAY) == 20) {
+						fromDateTime = calculateLocalDateTime(calendarEndTime);
+					}
+
+					toDateTime = calculateLocalDateTime(calendarEndTime);
+					duration = Duration.between(fromDateTime, toDateTime);
+					testUnit = testUnit + duration.toMillis();
+				} else if (calendarEndTime.get(Calendar.DAY_OF_MONTH) == calendarStartTime.get(Calendar.DAY_OF_MONTH)
+						&& calendarStartTime.get(Calendar.HOUR_OF_DAY) >= 0
+						&& calendarEndTime.get(Calendar.HOUR_OF_DAY) <= 7) {
+
+					minuteDayStart = calendarStartTime.get(Calendar.MINUTE) > 0
+							&& calendarStartTime.get(Calendar.HOUR_OF_DAY) == 7 ? 0
+									: calendarStartTime.get(Calendar.MINUTE);
+					secondDayEnd = calendarStartTime.get(Calendar.SECOND) > 0
+							&& calendarStartTime.get(Calendar.HOUR_OF_DAY) == 7 ? 0
+									: calendarStartTime.get(Calendar.SECOND);
+
+					calendarStartTime.set(Calendar.MINUTE, minuteDayStart);
+					calendarStartTime.set(Calendar.SECOND, secondDayEnd);
+					fromDateTime = calculateLocalDateTime(calendarStartTime);
+					toDateTime = calculateLocalDateTime(calendarEndTime);
+					Duration duration = Duration.between(fromDateTime, toDateTime);
+					testUnit = testUnit + duration.toMillis();
+				} else if (calendarEndTime.get(Calendar.DAY_OF_MONTH) == calendarStartTime.get(Calendar.DAY_OF_MONTH)
+						&& calendarStartTime.get(Calendar.HOUR_OF_DAY) >= 20) {
+
+					minuteDayStart = calendarStartTime.get(Calendar.MINUTE) > 0
+							&& calendarStartTime.get(Calendar.HOUR_OF_DAY) == 20 ? 0
+									: calendarStartTime.get(Calendar.MINUTE);
+					secondDayEnd = calendarStartTime.get(Calendar.SECOND) > 0
+							&& calendarStartTime.get(Calendar.HOUR_OF_DAY) == 20 ? 0
+									: calendarStartTime.get(Calendar.SECOND);
+
+					calendarStartTime.set(Calendar.MINUTE, minuteDayStart);
+					calendarStartTime.set(Calendar.SECOND, secondDayEnd);
+					fromDateTime = calculateLocalDateTime(calendarStartTime);
+					toDateTime = calculateLocalDateTime(calendarEndTime);
+					Duration duration = Duration.between(fromDateTime, toDateTime);
+					testUnit = testUnit + duration.toMillis();
+				} else if (calendarEndTime.get(Calendar.DAY_OF_MONTH) == calendarStartTime.get(Calendar.DAY_OF_MONTH)
+						&& calendarStartTime.get(Calendar.HOUR_OF_DAY) >= 0
+						&& calendarStartTime.get(Calendar.HOUR_OF_DAY) <= 7) {
+
+					minuteDayStart = calendarStartTime.get(Calendar.MINUTE) > 0
+							&& calendarStartTime.get(Calendar.HOUR_OF_DAY) == 7 ? 0
+									: calendarStartTime.get(Calendar.MINUTE);
+					secondDayEnd = calendarStartTime.get(Calendar.SECOND) > 0
+							&& calendarStartTime.get(Calendar.HOUR_OF_DAY) == 7 ? 0
+									: calendarStartTime.get(Calendar.SECOND);
+
+					calendarStartTime.set(Calendar.MINUTE, minuteDayStart);
+					calendarStartTime.set(Calendar.SECOND, secondDayEnd);
+					fromDateTime = calculateLocalDateTime(calendarStartTime);
+
+					if (calendarEndTime.get(Calendar.HOUR_OF_DAY) >= 7) {
+						hourDayEnd = calendarEndTime.get(Calendar.HOUR_OF_DAY) > 7 ? 7
+								: calendarEndTime.get(Calendar.HOUR_OF_DAY);
+						minuteDayEnd = calendarEndTime.get(Calendar.HOUR_OF_DAY) >= 7
+								&& calendarStartTime.get(Calendar.MINUTE) > 0 ? 0
+										: calendarStartTime.get(Calendar.MINUTE);
+						secondDayEnd = calendarEndTime.get(Calendar.HOUR_OF_DAY) >= 7
+								&& calendarStartTime.get(Calendar.SECOND) > 0 ? 0
+										: calendarStartTime.get(Calendar.SECOND);
+
+						calendarEndTime.set(Calendar.HOUR_OF_DAY, hourDayEnd);
+						calendarEndTime.set(Calendar.MINUTE, minuteDayEnd);
+						calendarEndTime.set(Calendar.SECOND, secondDayEnd);
+					}
+
+					toDateTime = calculateLocalDateTime(calendarEndTime);
+					Duration duration = Duration.between(fromDateTime, toDateTime);
+					testUnit = testUnit + duration.toMillis();
+				}
+			} else if (typeWorkingHours.equals(Constants.typeSundayHours)
+					|| typeWorkingHours.equals(Constants.typeExtraSundayHours)) {
+				fromDateTime = calculateLocalDateTime(calendarStartTime);
+				toDateTime = calculateLocalDateTime(calendarEndTime);
+
+				Duration duration = Duration.between(fromDateTime, toDateTime);
+				testUnit = testUnit + duration.toMillis();
+			} else {
+				fromDateTime = calculateLocalDateTime(calendarStartTime);
+				toDateTime = calculateLocalDateTime(calendarEndTime);
+
+				Duration duration = Duration.between(fromDateTime, toDateTime);
+				testUnit = testUnit + duration.toMillis();
 			}
 
-			LocalDateTime fromDateTime = LocalDateTime.of(calendarStartTime.get(Calendar.YEAR),
-					calendarStartTime.get(Calendar.MONTH), calendarStartTime.get(Calendar.DAY_OF_MONTH), hourDayStart,
-					minuteDayStart, secondDayStart);
-
-			LocalDateTime toDateTime = LocalDateTime.of(calendarEndTime.get(Calendar.YEAR),
-					calendarEndTime.get(Calendar.MONTH), calendarEndTime.get(Calendar.DAY_OF_MONTH), hourDayEnd,
-					minuteDayEnd, secondDayEnd);
-
-			Duration duration = Duration.between(fromDateTime, toDateTime);
-
-			testUnit = testUnit + duration.toMillis();
-
-			LocalTime hackUseOfClockAsDuration = LocalTime.MIN.plus(duration);
-			totalHours = totalHours + hackUseOfClockAsDuration.getHour();
-			totalMinutes = totalMinutes + hackUseOfClockAsDuration.getMinute();
-			totalSeconds = totalSeconds + hackUseOfClockAsDuration.getSecond();
+			/*
+			 * LocalTime hackUseOfClockAsDuration = LocalTime.MIN.plus(duration); totalHours
+			 * = totalHours + hackUseOfClockAsDuration.getHour(); totalMinutes =
+			 * totalMinutes + hackUseOfClockAsDuration.getMinute(); totalSeconds =
+			 * totalSeconds + hackUseOfClockAsDuration.getSecond();
+			 */
 		});
 
 		long millis = testUnit;
@@ -275,45 +685,56 @@ public class CalculateWorkingHourServiceImp implements CalculateWorkingHourServi
 
 		String splitHours[] = totalnormalHours.split(":");
 		int hoursCalculate = Integer.parseInt(splitHours[0]);
+		int minutes = Integer.parseInt(splitHours[1]);
 
 		if (typeWorkingHours.equals(Constants.typeExtraNormalHours)) {
 			if (hoursCalculate > 48) {
 				hoursCalculate = hoursCalculate - 48;
-				/*if(hoursCalculate > 48) {
-					hoursCalculate = hoursCalculate - 48;
-				}else {
-					int diffrenceHoursCalculate = hoursCalculate - differenceHoursWeek;
-					hoursCalculate = Math.round((hoursCalculate - diffrenceHoursCalculate) / 2);
-				}*/
-				
-			
-				
-			//if (differenceHoursWeek > 0) {
-				//hoursCalculate = hoursCalculate - 48;
-				//int diffrenceHoursCalculate = hoursCalculate - differenceHoursWeek;
-				//hoursCalculate = Math.round((hoursCalculate - diffrenceHoursCalculate) / 2);
 				totalnormalHours = hoursCalculate + ":" + splitHours[1] + ":" + splitHours[2];
 			} else {
-				totalnormalHours = "00:00:00";
+
+				if (differenceHoursWeek > 0) {
+					int diffrenceHoursCalculate = hoursCalculate - differenceHoursWeek;
+					hoursCalculate = Math.round((hoursCalculate - diffrenceHoursCalculate) / 2);
+					totalnormalHours = hoursCalculate + ":" + splitHours[1] + ":" + splitHours[2];
+				} else {
+					totalnormalHours = "00:00:00";
+				}
+
 			}
 
 		} else if (typeWorkingHours.equals(Constants.typeExtraNightHours)) {
 			if (hoursCalculate > 48) {
 				hoursCalculate = hoursCalculate - 48;
-				/*if(hoursCalculate > 48) {
-					hoursCalculate = hoursCalculate - 48;
-				}else {
-					int diffrenceHoursCalculate = hoursCalculate - differenceHoursWeek;
-					hoursCalculate = Math.round((hoursCalculate - diffrenceHoursCalculate)/2);
-				}*/
 				totalnormalHours = hoursCalculate + ":" + splitHours[1] + ":" + splitHours[2];
+
 			} else {
-				totalnormalHours = "00:00:00";
+				if (differenceHoursWeek > 0) {
+					int diffrenceHoursCalculate = hoursCalculate - differenceHoursWeek;
+					hoursCalculate = Math.round((hoursCalculate - diffrenceHoursCalculate) / 2);
+					totalnormalHours = hoursCalculate + ":" + splitHours[1] + ":" + splitHours[2];
+				} else {
+					totalnormalHours = "00:00:00";
+				}
 			}
 		}
 
 		differenceHoursWeek = 0;
+
+		if (hoursCalculate < 0 || minutes < 0) {
+			totalnormalHours = "00:00:00";
+		}
+
+		testUnit = 0;
+
 		return totalnormalHours;
+	}
+
+	private LocalDateTime calculateLocalDateTime(Calendar calendar) {
+		LocalDateTime localDateTime = LocalDateTime.of(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH),
+				calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE),
+				calendar.get(Calendar.SECOND));
+		return localDateTime;
 	}
 
 }
