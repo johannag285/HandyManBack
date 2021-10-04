@@ -22,4 +22,5 @@ public class ServiceReportRequestDTO implements Serializable{
 	private String identificationService;
 	private String startDateTime;
 	private String endDateTime;
+	private boolean isEXtraTime;
 }

@@ -8,15 +8,11 @@ import com.ias.HandyMan.model.ServiceReport;
 
 public interface CalculateWorkingHourRepository {
 	public Optional<List<ServiceReport>> getQueryNormalHours(CalculateWorkingHourRequest calculateWorkingHourRequest);
-
 	public Optional<List<ServiceReport>> getQueryNightHours(CalculateWorkingHourRequest calculateWorkingHourRequest);
-
 	public Optional<List<ServiceReport>> getQuerySundayHours(CalculateWorkingHourRequest calculateWorkingHourRequest);
-
 	public Optional<List<ServiceReport>> getQueryFilter(CalculateWorkingHourRequest calculateWorkingHourRequest);
-
 	public Optional<List<ServiceReport>> getWeekAndTimeStart(CalculateWorkingHourRequest calculateWorkingHourRequest);
-
 	public Optional<List<ServiceReport>> getQueryWeek(CalculateWorkingHourRequest calculateWorkingHourRequest);
-
+	public Optional<List<ServiceReport>> getQueryWeekExtraTime(CalculateWorkingHourRequest calculateWorkingHourRequest);
+	public Optional<List<ServiceReport>> getQuerySundayHoursExtraTime(CalculateWorkingHourRequest calculateWorkingHourRequest);
 }

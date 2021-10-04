@@ -37,4 +37,5 @@ public class ServiceReport {
 	
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date endDateTime;
+	private boolean isExtraTime;
 }

@@ -32,10 +32,18 @@ public interface ServiceReportRepository extends JpaRepository<ServiceReport, In
       
 	
 	@Query("select a from ServiceReport a where a.identificationTechnician = :identificationTechnician and DATE(a.startDateTime) >= :startDate and DATE(a.endDateTime) <= :endDate")
-	 Optional<List<ServiceReport>> querySundayHours(@Param("identificationTechnician") String identificationTechnician, @Param("startDate") Date startDate, @Param("endDate") Date endDate);
+	Optional<List<ServiceReport>> querySundayHours(@Param("identificationTechnician") String identificationTechnician, @Param("startDate") Date startDate, @Param("endDate") Date endDate);
+	
+	@Query("select a from ServiceReport a where a.identificationTechnician = :identificationTechnician and DATE(a.startDateTime) >= :startDate and DATE(a.endDateTime) <= :endDate and isEXtraTime=1")
+	Optional<List<ServiceReport>> querySundayHoursExtraTime(@Param("identificationTechnician") String identificationTechnician, @Param("startDate") Date startDate, @Param("endDate") Date endDate);
+	
 	
 	@Query("select a from ServiceReport a where a.identificationTechnician = :identificationTechnician and DATE(a.startDateTime) >= :startDate and DATE(a.endDateTime) <= :endDate")
 	Optional<List<ServiceReport>> queryWeek(@Param("identificationTechnician") String identificationTechnician, @Param("startDate") Date startDate, @Param("endDate") Date endDate);
+	
+	@Query("select a from ServiceReport a where a.identificationTechnician = :identificationTechnician and DATE(a.startDateTime) >= :startDate and DATE(a.endDateTime) <= :endDate and isEXtraTime=1")
+	Optional<List<ServiceReport>> queryWeekExtraTime(@Param("identificationTechnician") String identificationTechnician, @Param("startDate") Date startDate, @Param("endDate") Date endDate);
+	
 	
 	@Query("select a from ServiceReport a where a.identificationTechnician = :identificationTechnician and DATE(a.startDateTime) >= :startDate and DATE(a.endDateTime) <= :endDate and TIME(a.startDateTime) >= :startTime and TIME(a.startDateTime) <= :endTime")
 	Optional<List<ServiceReport>> queryWeekAndTimeStart(@Param("identificationTechnician") String identificationTechnician, @Param("startDate") Date startDate, @Param("endDate") Date endDate, @Param("startTime") Date startTime, @Param("endTime") Date endTime);

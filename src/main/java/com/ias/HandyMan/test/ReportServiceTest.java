@@ -16,6 +16,7 @@ import org.modelmapper.ModelMapper;
 
 import com.ias.HandyMan.dto.ServiceReportRequestDTO;
 import com.ias.HandyMan.dto.ServiceReportResponseDTO;
+import com.ias.HandyMan.repository.CalculateWorkingHourRepository;
 import com.ias.HandyMan.repository.ReportServiceRepository;
 import com.ias.HandyMan.repository.ReportServiceRepositoryImp;
 import com.ias.HandyMan.repository.database.ServiceReportRepository;
@@ -26,6 +27,7 @@ public class ReportServiceTest {
 	private ReportService reportService;
 	private ReportServiceRepository reportServiceRepository;
 	private ServiceReportRepository serviceReportRepository;
+	private CalculateWorkingHourRepository calculateWorkingHourRepository;
 	private ModelMapper modelMapper;
 
 	public ReportServiceTest() {
@@ -33,9 +35,10 @@ public class ReportServiceTest {
 		this.serviceReportRepository = mock(ServiceReportRepository.class);
 		this.reportServiceRepository = mock(ReportServiceRepository.class);
 		this.reportService = mock(ReportService.class);
+		this.calculateWorkingHourRepository = mock(CalculateWorkingHourRepository.class);
 
 		this.reportServiceRepository = new ReportServiceRepositoryImp(serviceReportRepository);
-		this.reportService = new ReportServiceImp(reportServiceRepository, modelMapper);
+		this.reportService = new ReportServiceImp(reportServiceRepository, modelMapper, calculateWorkingHourRepository);
 	}
 
 	@Test

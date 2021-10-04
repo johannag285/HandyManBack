@@ -58,5 +58,18 @@ public class CalculateWorkingHourRepositoryImp implements CalculateWorkingHourRe
 				calculateWorkingHourRequest.getStartDateTime(), calculateWorkingHourRequest.getEndDateTime());
 	}
 
+	@Override
+	public Optional<List<ServiceReport>> getQueryWeekExtraTime(
+			CalculateWorkingHourRequest calculateWorkingHourRequest) {
+		return serviceReportRepository.queryWeekExtraTime(calculateWorkingHourRequest.getIdentificationTechnician(),
+				calculateWorkingHourRequest.getStartDateTime(), calculateWorkingHourRequest.getEndDateTime());
+	}
+
+	@Override
+	public Optional<List<ServiceReport>> getQuerySundayHoursExtraTime(
+			CalculateWorkingHourRequest calculateWorkingHourRequest) {
+		return serviceReportRepository.querySundayHoursExtraTime(calculateWorkingHourRequest.getIdentificationTechnician(),
+				calculateWorkingHourRequest.getStartDateTime(), calculateWorkingHourRequest.getEndDateTime());
+	}
 
 }

@@ -26,11 +26,9 @@ public class CalculateWorkingHourServiceImp implements CalculateWorkingHourServi
 	private static final Logger LOGGER = LoggerFactory.getLogger(CalculateWorkingHourService.class);
 	private CalculateWorkingHourRepository calculateWorkingHourRepository;
 	private long testUnit;
-	private int differenceHoursWeek;
 
 	public CalculateWorkingHourServiceImp(CalculateWorkingHourRepository calculateWorkingHourRepository) {
 		this.testUnit = 0;
-		this.differenceHoursWeek = 0;
 		this.calculateWorkingHourRepository = calculateWorkingHourRepository;
 	}
 
@@ -112,8 +110,7 @@ public class CalculateWorkingHourServiceImp implements CalculateWorkingHourServi
 
 		String startDateTime = sdf.format(cal.getTime());
 		cal.set(Calendar.DAY_OF_WEEK, Calendar.SATURDAY);
-		
-		
+
 		String endDateTime = sdf.format(cal.getTime());
 		List<ServiceReport> listServiceReport = new ArrayList<ServiceReport>();
 
@@ -150,55 +147,10 @@ public class CalculateWorkingHourServiceImp implements CalculateWorkingHourServi
 			calculateWorkingHourRequest.setStartDateTime(dateStart);
 			listServiceReport = calculateWorkingHourRepository.getQueryWeek(calculateWorkingHourRequest).get();
 		} else if (typetypeWorkingHours.equals(Constants.typeExtraNormalHours)) {
-			/*cal.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
-			endDateTime = sdf.format(cal.getTime());
-			dateEnd = formatterDate.parse(endDateTime);
-			calculateWorkingHourRequest.setEndDateTime(dateEnd);*/
-			
-			
-			List<ServiceReport> listServiceReportWeek = calculateWorkingHourRepository
-					.getQueryWeek(calculateWorkingHourRequest).get();
-			String hours = calculateHours(listServiceReportWeek, false, "");
-			String splitHour[] = hours.split(":");
-			System.out.println("HOURSSS");
-			System.out.println(splitHour[0]);
-			if (Integer.valueOf(splitHour[0]) > 48) {
-				differenceHoursWeek = Integer.valueOf(splitHour[0]) - 48;
-				/*cal.set(Calendar.DAY_OF_WEEK, Calendar.SATURDAY);
-				endDateTime = sdf.format(cal.getTime());
-				dateEnd = formatterDate.parse(endDateTime);
-				calculateWorkingHourRequest.setEndDateTime(dateEnd);*/
-				
-				listServiceReport = calculateWorkingHourRepository.getQueryWeek(calculateWorkingHourRequest).get();
-			}
+			listServiceReport = calculateWorkingHourRepository.getQueryWeekExtraTime(calculateWorkingHourRequest).get();
 		} else if (typetypeWorkingHours.equals(Constants.typeExtraNightHours)) {
-			/*cal.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
-			endDateTime = sdf.format(cal.getTime());
-			dateEnd = formatterDate.parse(endDateTime);
-			calculateWorkingHourRequest.setEndDateTime(dateEnd);*/
-			
-			
-			List<ServiceReport> listServiceReportWeek = calculateWorkingHourRepository
-					.getQueryWeek(calculateWorkingHourRequest).get();
-			String hours = calculateHours(listServiceReportWeek, false, "");
-			String splitHour[] = hours.split(":");
-
-			if (Integer.valueOf(splitHour[0]) > 48) {
-				differenceHoursWeek = Integer.valueOf(splitHour[0]) - 48;
-				
-				/*cal.set(Calendar.DAY_OF_WEEK, Calendar.SATURDAY);
-				endDateTime = sdf.format(cal.getTime());
-				dateEnd = formatterDate.parse(endDateTime);
-				calculateWorkingHourRequest.setEndDateTime(dateEnd);*/
-				listServiceReport = calculateWorkingHourRepository.getQueryWeek(calculateWorkingHourRequest).get();
-			}
+			listServiceReport = calculateWorkingHourRepository.getQueryWeekExtraTime(calculateWorkingHourRequest).get();
 		} else if (typetypeWorkingHours.equals(Constants.typeExtraSundayHours)) {
-			List<ServiceReport> listServiceReportWeek = calculateWorkingHourRepository
-					.getQueryWeek(calculateWorkingHourRequest).get();
-			String hours = calculateHours(listServiceReportWeek, false, "");
-			String splitHour[] = hours.split(":");
-
-			if (Integer.valueOf(splitHour[0]) > 48) {
 				Calendar calendar = Calendar.getInstance();
 				calendar.set(Calendar.WEEK_OF_YEAR, numberWeek);
 				calendar.setTime(calendar.getTime());
@@ -212,9 +164,8 @@ public class CalculateWorkingHourServiceImp implements CalculateWorkingHourServi
 
 				calculateWorkingHourRequest.setEndDateTime(dateEnd);
 				calculateWorkingHourRequest.setStartDateTime(dateStart);
-				listServiceReport = calculateWorkingHourRepository.getQuerySundayHours(calculateWorkingHourRequest)
-						.get();
-			}
+				listServiceReport = calculateWorkingHourRepository
+						.getQuerySundayHoursExtraTime(calculateWorkingHourRequest).get();
 		}
 
 		return listServiceReport;
@@ -248,7 +199,7 @@ public class CalculateWorkingHourServiceImp implements CalculateWorkingHourServi
 				if (calendarEndTime.get(Calendar.DAY_OF_MONTH) > calendarStartTime.get(Calendar.DAY_OF_MONTH)
 						&& calendarStartTime.get(Calendar.HOUR_OF_DAY) <= 7
 						&& calendarEndTime.get(Calendar.HOUR_OF_DAY) >= 20) {
-					/*primera fecha*/
+					/* primera fecha */
 
 					hourDayStart = calendarStartTime.get(Calendar.HOUR_OF_DAY) < 7 ? 7
 							: calendarStartTime.get(Calendar.HOUR_OF_DAY);
@@ -261,7 +212,7 @@ public class CalculateWorkingHourServiceImp implements CalculateWorkingHourServi
 					calendarStartTime.set(Calendar.MINUTE, minuteDayStart);
 					calendarStartTime.set(Calendar.SECOND, secondDayStart);
 					fromDateTime = calculateLocalDateTime(calendarStartTime);
-					
+
 					calendarEndTime.setTime(reportService.getStartDateTime());
 					calendarEndTime.set(Calendar.HOUR_OF_DAY, 20);
 					calendarEndTime.set(Calendar.MINUTE, 0);
@@ -270,12 +221,11 @@ public class CalculateWorkingHourServiceImp implements CalculateWorkingHourServi
 
 					Duration duration = Duration.between(fromDateTime, toDateTime);
 					testUnit = testUnit + duration.toMillis();
-					
-					
-					/*Segunda Fecha*/
+
+					/* Segunda Fecha */
 					calendarStartTime.setTime(reportService.getEndDateTime());
 					calendarEndTime.setTime(reportService.getEndDateTime());
-					
+
 					hourDayStart = calendarStartTime.get(Calendar.HOUR_OF_DAY) > 7 ? 7
 							: calendarStartTime.get(Calendar.HOUR_OF_DAY);
 					minuteDayStart = calendarStartTime.get(Calendar.HOUR_OF_DAY) > 7
@@ -287,7 +237,7 @@ public class CalculateWorkingHourServiceImp implements CalculateWorkingHourServi
 					calendarStartTime.set(Calendar.MINUTE, minuteDayStart);
 					calendarStartTime.set(Calendar.SECOND, secondDayStart);
 					fromDateTime = calculateLocalDateTime(calendarStartTime);
-					
+
 					calendarEndTime.set(Calendar.HOUR_OF_DAY, 20);
 					calendarEndTime.set(Calendar.MINUTE, 0);
 					calendarEndTime.set(Calendar.SECOND, 0);
@@ -407,15 +357,14 @@ public class CalculateWorkingHourServiceImp implements CalculateWorkingHourServi
 			} else if (typeWorkingHours.equals(Constants.typeNightHours)
 					|| typeWorkingHours.equals(Constants.typeExtraNightHours)) {
 
-				 if (calendarEndTime.get(Calendar.DAY_OF_MONTH) > calendarStartTime.get(Calendar.DAY_OF_MONTH)) {
+				if (calendarEndTime.get(Calendar.DAY_OF_MONTH) > calendarStartTime.get(Calendar.DAY_OF_MONTH)) {
 					/* Primera Fecha */
 					if (calendarStartTime.get(Calendar.HOUR_OF_DAY) <= 7) {
 						fromDateTime = calculateLocalDateTime(calendarStartTime);
 						calendarEndTime.setTime(reportService.getStartDateTime());
-						hourDayEnd = calendarEndTime.get(Calendar.HOUR_OF_DAY) <= 7
-								? 7
+						hourDayEnd = calendarEndTime.get(Calendar.HOUR_OF_DAY) <= 7 ? 7
 								: calendarStartTime.get(Calendar.HOUR_OF_DAY);
-						
+
 						calendarEndTime.set(Calendar.HOUR_OF_DAY, hourDayEnd);
 						toDateTime = calculateLocalDateTime(calendarEndTime);
 
@@ -443,8 +392,7 @@ public class CalculateWorkingHourServiceImp implements CalculateWorkingHourServi
 						Duration duration = Duration.between(fromDateTime, toDateTime);
 						testUnit = testUnit + duration.toMillis();
 					}
-					
-					
+
 					calendarStartTime.setTime(reportService.getStartDateTime());
 					calendarEndTime.setTime(reportService.getStartDateTime());
 
@@ -492,8 +440,7 @@ public class CalculateWorkingHourServiceImp implements CalculateWorkingHourServi
 							calendarStartTime.set(Calendar.MINUTE, 0);
 							calendarStartTime.set(Calendar.SECOND, 0);
 							fromDateTime = calculateLocalDateTime(calendarStartTime);
-							
-							
+
 							hourDayEnd = calendarEndTime.get(Calendar.HOUR_OF_DAY) > 7 ? 7
 									: calendarEndTime.get(Calendar.HOUR_OF_DAY);
 							minuteDayEnd = calendarEndTime.get(Calendar.HOUR_OF_DAY) >= 7 ? 0
@@ -521,7 +468,7 @@ public class CalculateWorkingHourServiceImp implements CalculateWorkingHourServi
 							calendarStartTime.set(Calendar.MINUTE, minuteDayStart);
 							calendarStartTime.set(Calendar.SECOND, secondDayEnd);
 							fromDateTime = calculateLocalDateTime(calendarStartTime);
-							
+
 							toDateTime = calculateLocalDateTime(calendarEndTime);
 							Duration duration = Duration.between(fromDateTime, toDateTime);
 							testUnit = testUnit + duration.toMillis();
@@ -532,10 +479,13 @@ public class CalculateWorkingHourServiceImp implements CalculateWorkingHourServi
 					calendarEndTime.setTime(reportService.getEndDateTime());
 
 					if (calendarStartTime.get(Calendar.HOUR_OF_DAY) >= 20) {
-						minuteDayEnd = calendarStartTime.get(Calendar.HOUR_OF_DAY) >= 20 && calendarStartTime.get(Calendar.MINUTE) > 0 ? 0 : calendarEndTime.get(Calendar.MINUTE);
-						secondDayEnd = calendarStartTime.get(Calendar.HOUR_OF_DAY) >= 20 && calendarStartTime.get(Calendar.SECOND) > 0 ? 0 : calendarEndTime.get(Calendar.SECOND);
+						minuteDayEnd = calendarStartTime.get(Calendar.HOUR_OF_DAY) >= 20
+								&& calendarStartTime.get(Calendar.MINUTE) > 0 ? 0
+										: calendarEndTime.get(Calendar.MINUTE);
+						secondDayEnd = calendarStartTime.get(Calendar.HOUR_OF_DAY) >= 20
+								&& calendarStartTime.get(Calendar.SECOND) > 0 ? 0
+										: calendarEndTime.get(Calendar.SECOND);
 
-						
 						calendarStartTime.set(Calendar.HOUR_OF_DAY, 20);
 						calendarStartTime.set(Calendar.MINUTE, minuteDayEnd);
 						calendarStartTime.set(Calendar.SECOND, secondDayEnd);
@@ -603,7 +553,7 @@ public class CalculateWorkingHourServiceImp implements CalculateWorkingHourServi
 				} else if (calendarEndTime.get(Calendar.DAY_OF_MONTH) == calendarStartTime.get(Calendar.DAY_OF_MONTH)
 						&& calendarStartTime.get(Calendar.HOUR_OF_DAY) >= 0
 						&& calendarEndTime.get(Calendar.HOUR_OF_DAY) <= 7) {
-					
+
 					minuteDayStart = calendarStartTime.get(Calendar.MINUTE) > 0
 							&& calendarStartTime.get(Calendar.HOUR_OF_DAY) == 7 ? 0
 									: calendarStartTime.get(Calendar.MINUTE);
@@ -700,40 +650,6 @@ public class CalculateWorkingHourServiceImp implements CalculateWorkingHourServi
 		String splitHours[] = totalnormalHours.split(":");
 		int hoursCalculate = Integer.parseInt(splitHours[0]);
 		int minutes = Integer.parseInt(splitHours[1]);
-
-		if (typeWorkingHours.equals(Constants.typeExtraNormalHours)) {
-			if (hoursCalculate > 48) {
-				hoursCalculate = hoursCalculate - 48;
-				totalnormalHours = hoursCalculate + ":" + splitHours[1] + ":" + splitHours[2];
-			} else {
-
-				if (differenceHoursWeek > 0) {
-					int diffrenceHoursCalculate = hoursCalculate - differenceHoursWeek;
-					hoursCalculate = Math.round((hoursCalculate - diffrenceHoursCalculate) / 2);
-					totalnormalHours = hoursCalculate + ":" + splitHours[1] + ":" + splitHours[2];
-				} else {
-					totalnormalHours = "00:00:00";
-				}
-
-			}
-
-		} else if (typeWorkingHours.equals(Constants.typeExtraNightHours)) {
-			if (hoursCalculate > 48) {
-				hoursCalculate = hoursCalculate - 48;
-				totalnormalHours = hoursCalculate + ":" + splitHours[1] + ":" + splitHours[2];
-
-			} else {
-				if (differenceHoursWeek > 0) {
-					int diffrenceHoursCalculate = hoursCalculate - differenceHoursWeek;
-					hoursCalculate = Math.round((hoursCalculate - diffrenceHoursCalculate) / 2);
-					totalnormalHours = hoursCalculate + ":" + splitHours[1] + ":" + splitHours[2];
-				} else {
-					totalnormalHours = "00:00:00";
-				}
-			}
-		}
-
-		differenceHoursWeek = 0;
 
 		if (hoursCalculate < 0 || minutes < 0) {
 			totalnormalHours = "00:00:00";

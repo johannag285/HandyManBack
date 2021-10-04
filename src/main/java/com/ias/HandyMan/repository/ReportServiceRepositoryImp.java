@@ -27,7 +27,7 @@ public class ReportServiceRepositoryImp implements ReportServiceRepository{
 			serviceReport.setIdentificationService(serviceReportRequest.getIdentificationService());
 			serviceReport.setIdentificationTechnician(serviceReportRequest.getIdentificationTechnician());
 			serviceReport.setStartDateTime(serviceReportRequest.getStartDateTime());
-			
+			serviceReport.setExtraTime(serviceReportRequest.isExtraTime());
 			serviceReportRepository.save(serviceReport);
 			serviceReportResponse.setResponse("Reporte del servicio creado correctamente para: " + serviceReportRequest.getIdentificationService());
 		}catch (Exception e) {

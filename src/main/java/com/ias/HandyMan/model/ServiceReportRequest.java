@@ -22,4 +22,5 @@ public class ServiceReportRequest implements Serializable{
 	private String identificationService;
 	private Date startDateTime;
 	private Date endDateTime;
+	private boolean isExtraTime;
 }
