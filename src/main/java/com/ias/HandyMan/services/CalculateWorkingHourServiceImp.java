@@ -280,7 +280,6 @@ public class CalculateWorkingHourServiceImp implements CalculateWorkingHourServi
 						&& calendarStartTime.get(Calendar.HOUR_OF_DAY) >= 7
 						&& calendarEndTime.get(Calendar.DAY_OF_MONTH) == calendarStartTime.get(Calendar.DAY_OF_MONTH)) {
 
-					System.out.println("hola 1");
 					minuteDayEnd = calendarEndTime.get(Calendar.MINUTE) > 0 ? 0 : calendarEndTime.get(Calendar.MINUTE);
 					secondDayEnd = calendarEndTime.get(Calendar.SECOND) > 0 ? 0 : calendarEndTime.get(Calendar.SECOND);
 
@@ -296,7 +295,6 @@ public class CalculateWorkingHourServiceImp implements CalculateWorkingHourServi
 				} else if (calendarEndTime.get(Calendar.HOUR_OF_DAY) <= 20
 						&& calendarStartTime.get(Calendar.HOUR_OF_DAY) >= 7
 						&& calendarEndTime.get(Calendar.DAY_OF_MONTH) == calendarStartTime.get(Calendar.DAY_OF_MONTH)) {
-					System.out.println("hola 2");
 					hourDayEnd = calendarEndTime.get(Calendar.HOUR_OF_DAY);
 					minuteDayEnd = calendarEndTime.get(Calendar.MINUTE);
 					secondDayEnd = calendarEndTime.get(Calendar.SECOND);
@@ -322,7 +320,6 @@ public class CalculateWorkingHourServiceImp implements CalculateWorkingHourServi
 						&& calendarEndTime.get(Calendar.HOUR_OF_DAY) > 20
 						&& calendarEndTime.get(Calendar.DAY_OF_MONTH) == calendarStartTime.get(Calendar.DAY_OF_MONTH)) {
 
-					System.out.println("hola 3");
 					calendarStartTime.set(Calendar.HOUR_OF_DAY, 7);
 					calendarStartTime.set(Calendar.MINUTE, 0);
 					calendarStartTime.set(Calendar.SECOND, 0);
@@ -339,7 +336,6 @@ public class CalculateWorkingHourServiceImp implements CalculateWorkingHourServi
 						&& calendarEndTime.get(Calendar.HOUR_OF_DAY) <= 20
 						&& calendarEndTime.get(Calendar.DAY_OF_MONTH) == calendarStartTime.get(Calendar.DAY_OF_MONTH)) {
 
-					System.out.println("hola 4");
 					hourDayStart = calendarStartTime.get(Calendar.HOUR_OF_DAY) < 7 ? 7
 							: calendarStartTime.get(Calendar.HOUR_OF_DAY);
 
