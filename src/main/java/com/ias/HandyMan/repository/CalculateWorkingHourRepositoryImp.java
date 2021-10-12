@@ -34,7 +34,7 @@ public class CalculateWorkingHourRepositoryImp implements CalculateWorkingHourRe
 	@Override
 	public Optional<List<ServiceReport>> getQuerySundayHours(CalculateWorkingHourRequest calculateWorkingHourRequest) {
 		return serviceReportRepository.querySundayHours(calculateWorkingHourRequest.getIdentificationTechnician(),
-				calculateWorkingHourRequest.getStartDateTime(), calculateWorkingHourRequest.getEndDateTime());
+				calculateWorkingHourRequest.getStartDateTime());
 	}
 
 	@Override
@@ -48,8 +48,7 @@ public class CalculateWorkingHourRepositoryImp implements CalculateWorkingHourRe
 	@Override
 	public Optional<List<ServiceReport>> getWeekAndTimeStart(CalculateWorkingHourRequest calculateWorkingHourRequest) {
 		return serviceReportRepository.queryWeekAndTimeStart(calculateWorkingHourRequest.getIdentificationTechnician(),
-				calculateWorkingHourRequest.getStartDateTime(), calculateWorkingHourRequest.getEndDateTime(),
-				calculateWorkingHourRequest.getStartTime(), calculateWorkingHourRequest.getEndTime());
+				calculateWorkingHourRequest.getStartDateTime(), calculateWorkingHourRequest.getEndDateTime());
 	}
 
 	@Override
@@ -69,6 +68,12 @@ public class CalculateWorkingHourRepositoryImp implements CalculateWorkingHourRe
 	public Optional<List<ServiceReport>> getQuerySundayHoursExtraTime(
 			CalculateWorkingHourRequest calculateWorkingHourRequest) {
 		return serviceReportRepository.querySundayHoursExtraTime(calculateWorkingHourRequest.getIdentificationTechnician(),
+				calculateWorkingHourRequest.getStartDateTime());
+	}
+
+	@Override
+	public Optional<List<ServiceReport>> getQueryWeekOther(CalculateWorkingHourRequest calculateWorkingHourRequest) {
+		return serviceReportRepository.queryWeekOther(calculateWorkingHourRequest.getIdentificationTechnician(),
 				calculateWorkingHourRequest.getStartDateTime(), calculateWorkingHourRequest.getEndDateTime());
 	}
 

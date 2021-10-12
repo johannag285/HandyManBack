@@ -15,4 +15,5 @@ public interface CalculateWorkingHourRepository {
 	public Optional<List<ServiceReport>> getQueryWeek(CalculateWorkingHourRequest calculateWorkingHourRequest);
 	public Optional<List<ServiceReport>> getQueryWeekExtraTime(CalculateWorkingHourRequest calculateWorkingHourRequest);
 	public Optional<List<ServiceReport>> getQuerySundayHoursExtraTime(CalculateWorkingHourRequest calculateWorkingHourRequest);
+	public Optional<List<ServiceReport>> getQueryWeekOther(CalculateWorkingHourRequest calculateWorkingHourRequest);
 }
